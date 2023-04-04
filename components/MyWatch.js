@@ -34,7 +34,9 @@ class MyWatch extends Component {
     render() {
         return <View style={styles.container}>
             <View style={styles.timerWrapper}>
-                <Text style={styles.timerText}>12:00.00</Text>
+                <Text style={styles.timerText}>
+                    {formatTime(this.state.timeElapsed)}
+                </Text>
             </View>
             <View style={styles.buttonsWapper}>
                 {this.lapButton()}
@@ -47,15 +49,34 @@ class MyWatch extends Component {
     }
 
     handleStartPress() {
-        
+        if (this.state.running) {
+            clearInterval(this.interval)
+            this.setState({running: false})
+            return
+        }
+        this.setState({
+            startTime: new Date(),
+            running: true,
+        })
+        this.interval = setInterval(() => {
+            this.setState({timeElapsed: new Date - this.state.startTime})
+        }, 30)
     }
 
     handleLapPress() {
-
+        this.setState({
+            startTime: new Date(),
+            laps: this.state.laps.concat(this.state.timeElapsed)
+        })
     }
 
     laps() {
-        
+        return this.state.laps.map((lapTime, index) => {
+            return <View key={index} style={styles.lap}>
+                <Text style={styles.lapText}>Lap #{index + 1}</Text>
+                <Text style={styles.lapText}>{formatTime(lapTime)}</Text>
+            </View>
+        })
     }
 }
 
@@ -66,23 +87,28 @@ const styles = StyleSheet.create({
     },
     timerWrapper: {
         flex: 3,
-        backgroundColor:'#aaa',
         justifyContent: 'center',
         alignItems: 'center',
     },
     buttonsWapper: {
         flex: 2,
-        backgroundColor:'#bbb',
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center'
     },
+    lap: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+    },
     footer: {
         flex: 5,
-        backgroundColor:'#ccc'
     },
     timerText: {
         fontSize: 64,
+    },
+    lapText: {
+        fontSize: 30,
     },
     button: {
         borderWidth: 2,
